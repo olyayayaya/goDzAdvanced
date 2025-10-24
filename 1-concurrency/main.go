@@ -8,31 +8,18 @@ import (
 
 func main() {
 
-	numsSlice := []int{}
-	for i := 0; i < 10; i++ {
-		numsSlice = append(numsSlice, rand.Intn(100))
-	}
-	
-	numsCh := make(chan int, len(numsSlice))
-	resultCh := make(chan int, len(numsSlice))
-	
-	for _, num := range numsSlice {
-		numsCh <- num
-	}
-	
-	close(numsCh)
+	numsCh := make(chan int, 10)
+	resultCh := make(chan int, 10)
+
+	go fullSlice(numsCh)
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		go sq(numsCh, resultCh, &wg)
-	}
+	wg.Add(1)
+	go sq(numsCh, resultCh, &wg)
 
-	go func() {
-		wg.Wait()
-		close(resultCh)
-	}()
+	wg.Wait()
+	close(resultCh)
 
 	resultSlice := []int{}
 	for res := range resultCh {
@@ -47,4 +34,16 @@ func sq(numsCh chan int, resCh chan int, wg *sync.WaitGroup) {
 	for num := range numsCh {
 		resCh <- num * num
 	}
+}
+
+func fullSlice(numsCh chan int) {
+	numsSlice := []int{}
+	for i := 0; i < 10; i++ {
+		numsSlice = append(numsSlice, rand.Intn(100))
+	}
+
+	for _, num := range numsSlice {
+		numsCh <- num
+	}
+	close(numsCh)
 }
