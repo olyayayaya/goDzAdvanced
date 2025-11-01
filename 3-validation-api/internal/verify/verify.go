@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/smtp"
 	"os"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/jordan-wright/email"
 )
@@ -28,7 +29,6 @@ func NewVerifyHandler(router *http.ServeMux, deps VerifyHandlerDeps) {
 	router.HandleFunc("POST /send", handler.Send())
 	router.HandleFunc("GET /verify/{hash}", handler.Verify())
 }
-
 
 func (handler *VerifyHandler) Send() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -54,8 +54,10 @@ func (handler *VerifyHandler) Send() http.HandlerFunc {
 			"email": reqBody.Email,
 			"hash":  hash,
 		}
+
 		file, _ := json.MarshalIndent(data, "", "  ")
-		_ = os.WriteFile("verify.json", file, 0644)
+		filename := fmt.Sprintf("%sverify.json", data["hash"])
+		_ = os.WriteFile(filename, file, 0644)
 
 		e := email.NewEmail()
 		e.From = fmt.Sprintf("Email Verifier <%s>", handler.Config.Email)
@@ -64,8 +66,8 @@ func (handler *VerifyHandler) Send() http.HandlerFunc {
 		e.Text = []byte(fmt.Sprintf("To verify, open this:\nhttp://localhost:8081/verify/%s", hash))
 
 		auth := smtp.PlainAuth("", handler.Config.Email, handler.Config.Password, handler.Config.Address)
-		er := e.Send(handler.Config.Address+":587", auth)
-		if er != nil {
+		err = e.Send(handler.Config.Address+":587", auth)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -78,8 +80,9 @@ func (handler *VerifyHandler) Send() http.HandlerFunc {
 func (handler *VerifyHandler) Verify() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		hash := r.PathValue("hash")
+		filename := fmt.Sprintf("%sverify.json", hash)
 
-		file, err := os.ReadFile("verify.json")
+		file, err := os.ReadFile(filename)
 		if err != nil {
 			http.Error(w, "No verification data found", http.StatusNotFound)
 			return
@@ -89,11 +92,11 @@ func (handler *VerifyHandler) Verify() http.HandlerFunc {
 		json.Unmarshal(file, &data)
 
 		if data["hash"] == hash {
-			os.Remove("verify.json")
 			w.Write([]byte("true"))
 		} else {
 			w.Write([]byte("false"))
 		}
+		os.Remove(filename)
 
 	}
 }
