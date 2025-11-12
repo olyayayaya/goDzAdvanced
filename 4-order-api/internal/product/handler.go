@@ -22,6 +22,9 @@ func NewProductHandler(router *http.ServeMux, deps ProductHandlerDeps) {
 		ProductRepository: deps.ProductRepository,
 	}
 	router.HandleFunc("POST /product", handler.Create())
+	router.HandleFunc("POST /product/{id}", handler.Update())
+	router.HandleFunc("POST /product/{id}", handler.Delete())
+	router.HandleFunc("POST /product/{id}", handler.GetById())
 }
 
 func (handler *ProductHandler) Create() http.HandlerFunc {
@@ -97,7 +100,6 @@ func (handler *ProductHandler) Delete() http.HandlerFunc {
 
 func (handler *ProductHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		idString := r.PathValue("id")
 		id, err := strconv.ParseUint(idString, 10, 32)
 		if err != nil {
