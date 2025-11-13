@@ -4,6 +4,7 @@ import (
 	"dz4/configs"
 	"dz4/internal/product"
 	"dz4/pkg/db"
+	"dz4/pkg/middleware"
 	"fmt"
 	"net/http"
 )
@@ -23,7 +24,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: router,
+		Handler: middleware.Logging(router),
 	}
 
 	fmt.Println("server is lixtening on port 8081")
