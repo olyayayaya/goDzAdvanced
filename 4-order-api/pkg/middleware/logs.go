@@ -30,7 +30,7 @@ func Logging(next http.Handler) http.Handler {
 			"path":        r.URL.Path,
 			"duration":    time.Since(start).String(),
 			"duration_ms": time.Since(start).Milliseconds(),
-		})
+		}).Info("HTTP request")
 
 	})
 }
