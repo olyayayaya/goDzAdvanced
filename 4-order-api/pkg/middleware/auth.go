@@ -32,7 +32,7 @@ func IsAuthed(next http.Handler, config *configs.Config) http.Handler {
 			writeUnauthed(w)
 			return
 		}
-		ctx := context.WithValue(r.Context(), ContextPhoneKey, data.Email)
+		ctx := context.WithValue(r.Context(), ContextPhoneKey, data.SessionId)
 		req := r.WithContext(ctx)
 		next.ServeHTTP(w, req)
 	})
