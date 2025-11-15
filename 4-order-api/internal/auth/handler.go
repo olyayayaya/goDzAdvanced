@@ -2,7 +2,6 @@ package auth
 
 import (
 	"dz4/configs"
-	"dz4/internal/user"
 	"dz4/pkg/jwt"
 	"dz4/pkg/req"
 	"dz4/pkg/res"
@@ -43,7 +42,7 @@ func (handler *AuthHandler) CreateSessionId() http.HandlerFunc {
 		if err != nil {
 			handler.AuthService.Register(body.PhoneNumber, sessionId, code) // если юзер не существует, регистрируем с новым айди и кодом
 		} else {
-			handler.Update(body.PhoneNumber, sessionId, code) // если сущестует, перезаписываем айди
+			handler.AuthService.Update(body.PhoneNumber, sessionId, code) // если сущестует, перезаписываем айди
 		}
 
 		data := GenerateSessionIdResponse{
@@ -97,16 +96,4 @@ func (handler *AuthHandler) GenerateCode() int {
 	}
 	intCode, _ := strconv.Atoi(string(b))
 	return intCode
-}
-
-func (handler *AuthHandler) Update(phoneNumber, sessionId string, code int) error {
-	_, err := handler.UserRepository.Update(&user.User{
-		PhoneNumber: phoneNumber,
-		SessionId: sessionId,
-		Code: code,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
 }
