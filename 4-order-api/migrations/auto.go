@@ -2,9 +2,9 @@ package main
 
 import (
 	"dz4/internal/product"
+	"dz4/internal/user"
 	"log"
 	"os"
-	"os/user"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"

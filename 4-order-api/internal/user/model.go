@@ -6,4 +6,5 @@ type User struct {
 	gorm.Model
 	PhoneNumber string `gorm:"index"`
 	SessionId   string
+	Code int
 }

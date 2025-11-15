@@ -8,6 +8,7 @@ import (
 	"dz4/pkg/res"
 	"math/rand"
 	"net/http"
+	"strconv"
 )
 
 type AuthHandlerDeps struct {
@@ -35,13 +36,14 @@ func (handler *AuthHandler) CreateSessionId() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		sessionId := handler.Generate()
+		sessionId := handler.GenerateSessionId()
+		code := handler.GenerateCode()
 
-		existedUser := handler.AuthService.FindByPhoneNumber(body.PhoneNumber)
-		if !existedUser {
-			handler.AuthService.Register(body.PhoneNumber, sessionId) // если юзер не существует, регистрируем с новым айди
+		err = handler.AuthService.FindByPhoneNumber(body.PhoneNumber)
+		if err != nil {
+			handler.AuthService.Register(body.PhoneNumber, sessionId, code) // если юзер не существует, регистрируем с новым айди и кодом
 		} else {
-			handler.Update(body.PhoneNumber, sessionId) // если сущестует, перезаписываем айди
+			handler.Update(body.PhoneNumber, sessionId, code) // если сущестует, перезаписываем айди
 		}
 
 		data := GenerateSessionIdResponse{
@@ -58,8 +60,8 @@ func (handler *AuthHandler) CheckValidationCode() http.HandlerFunc {
 			return
 		}
 
-		existedUser := handler.AuthService.FindBySessionId(body.SessionId)
-		if !existedUser && body.ValidationCode != 3245 {
+		originalCode, err := handler.AuthService.FindBySessionId(body.SessionId)
+		if err != nil || originalCode != body.Code {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
@@ -78,7 +80,7 @@ func (handler *AuthHandler) CheckValidationCode() http.HandlerFunc {
 
 }
 
-func (handler *AuthHandler) Generate() string {
+func (handler *AuthHandler) GenerateSessionId() string {
 	var letterRunes = []rune("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890")
 	b := make([]rune, 16)
 	for i := range b {
@@ -87,10 +89,21 @@ func (handler *AuthHandler) Generate() string {
 	return string(b)
 }
 
-func (handler *AuthHandler) Update(phoneNumber, sessionId string) error {
+func (handler *AuthHandler) GenerateCode() int {
+	var letterRunes = []rune("1234567890")
+	b := make([]rune, 4)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	intCode, _ := strconv.Atoi(string(b))
+	return intCode
+}
+
+func (handler *AuthHandler) Update(phoneNumber, sessionId string, code int) error {
 	_, err := handler.UserRepository.Update(&user.User{
 		PhoneNumber: phoneNumber,
 		SessionId: sessionId,
+		Code: code,
 	})
 	if err != nil {
 		return err
