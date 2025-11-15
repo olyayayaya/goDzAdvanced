@@ -4,6 +4,7 @@ import (
 	"dz4/internal/product"
 	"log"
 	"os"
+	"os/user"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -27,6 +28,12 @@ func main() {
 	}
 
 	if err := db.AutoMigrate(&product.Product{}); err != nil {
+		log.Fatalln("failed to migrate:", err)
+	} else {
+		log.Println("Migration successful")
+	}
+
+	if err := db.AutoMigrate(&user.User{}); err != nil {
 		log.Fatalln("failed to migrate:", err)
 	} else {
 		log.Println("Migration successful")
