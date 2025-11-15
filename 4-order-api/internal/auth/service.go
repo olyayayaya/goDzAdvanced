@@ -2,7 +2,6 @@ package auth
 
 import (
 	"dz4/internal/user"
-	"fmt"
 )
 
 type AuthService struct {
@@ -15,23 +14,36 @@ func NewAuthService(userRepository *user.UserRepository) *AuthService {
 	}
 }
 
-func (service *AuthService) FindByPhoneNumber(phoneNumber string) bool { 
-	existedUser, _ := service.UserRepository.FindByPhoneNumber(phoneNumber)
-		return existedUser == nil
+func (service *AuthService) FindByPhoneNumber(phoneNumber string) error {
+	_, err := service.UserRepository.FindByPhoneNumber(phoneNumber)
+	return err
 }
 
-func (service *AuthService) Register(phoneNumber, sessionId string) {
+func (service *AuthService) Register(phoneNumber string, sessionId string, code int) {
 	user := &user.User{
 		PhoneNumber: phoneNumber,
-		SessionId: sessionId,
+		SessionId:   sessionId,
+		Code:        code,
 	}
 	_, err := service.UserRepository.Create(user)
 	if err != nil {
-		fmt.Println(err)
+		return
 	}
 }
 
-func (service *AuthService) FindBySessionId(sessionId string) bool {
-	existedUser, _ := service.UserRepository.FindBySessionId(sessionId)
-	return existedUser == nil
+func (service *AuthService) FindBySessionId(sessionId string) (int, error) {
+	user, err := service.UserRepository.FindBySessionId(sessionId)
+	return user.Code, err
+}
+
+func (service *AuthService) Update(phoneNumber string, sessionId string, code int) {
+	user := &user.User{
+		PhoneNumber: phoneNumber,
+		SessionId:   sessionId,
+		Code:        code,
+	}
+	_, err := service.UserRepository.Update(user)
+	if err != nil {
+		return
+	}
 }

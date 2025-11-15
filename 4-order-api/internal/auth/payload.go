@@ -10,7 +10,7 @@ type GenerateSessionIdResponse struct {
 
 type ValidationCodeRequest struct {
 	SessionId string `json:"sessionId"`
-	ValidationCode int `json:"validationCode"`
+	Code int `json:"validationCode"`
 }
 
 type ValidationCodeResponse struct {
