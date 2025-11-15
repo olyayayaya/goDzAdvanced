@@ -25,7 +25,7 @@ func (repo *UserRepository) Create(user *User) (*User, error) {
 
 func (repo *UserRepository) FindByPhoneNumber(phoneNumber string) (*User, error) {
 	var user User
-	result := repo.Database.DB.First(&user, "phoneNumber = ?", phoneNumber)
+	result := repo.Database.DB.First(&user, "phonenumber = ?", phoneNumber)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -35,7 +35,7 @@ func (repo *UserRepository) FindByPhoneNumber(phoneNumber string) (*User, error)
 
 func (repo *UserRepository) FindBySessionId(sessionId string) (*User, error) {
 	var user User
-	result := repo.Database.DB.First(&user, "sessionId = ?", sessionId)
+	result := repo.Database.DB.First(&user, "sessionid = ?", sessionId)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -43,7 +43,7 @@ func (repo *UserRepository) FindBySessionId(sessionId string) (*User, error) {
 }
 
 func (repo *UserRepository) Update(user *User) (*User, error) {
-	result := repo.Database.DB.Clauses(clause.Returning{}).Updates(user)
+	result := repo.Database.DB.Clauses(clause.Returning{}).Where("phone_number = ?", user.PhoneNumber).Updates(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
