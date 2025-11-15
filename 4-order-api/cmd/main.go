@@ -28,13 +28,19 @@ func main() {
 		ProductRepository: productRepository,
 	})
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
-		Config: conf,
+		Config:      conf,
 		AuthService: authService,
 	})
 
+	// Middlewares
+	stack := middleware.Chain(
+		middleware.CORS,
+		middleware.Logging,
+	)
+
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: middleware.Logging(router),
+		Handler: stack(router),
 	}
 
 	fmt.Println("server is lixtening on port 8081")
