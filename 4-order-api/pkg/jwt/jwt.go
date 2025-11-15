@@ -3,7 +3,7 @@ package jwt
 import "github.com/golang-jwt/jwt/v5"
 
 type JWTData struct {
-	Email string
+	SessionId string
 }
 
 type JWT struct {
@@ -34,8 +34,8 @@ func (j *JWT) Parse(token string) (bool, *JWTData){
 	if err != nil {
 		return false, nil
 	}
-	email := t.Claims.(jwt.MapClaims)["email"] 
+	sessionId := t.Claims.(jwt.MapClaims)["sessionId"] 
 	return t.Valid, &JWTData{
-		Email: email.(string),
+		SessionId: sessionId.(string),
 	}
 }

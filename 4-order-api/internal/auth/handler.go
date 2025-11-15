@@ -3,10 +3,8 @@ package auth
 import (
 	"dz4/configs"
 	"dz4/pkg/jwt"
-	"dz4/pkg/middleware"
 	"dz4/pkg/req"
 	"dz4/pkg/res"
-	"fmt"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -28,7 +26,7 @@ func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 		AuthService: deps.AuthService,
 	}
 	router.HandleFunc("POST /auth/createSessionId", handler.CreateSessionId())
-	router.Handle("POST /auth/checkValidationCode", middleware.IsAuthed(handler.CheckValidationCode(), deps.Config))
+	router.HandleFunc("POST /auth/checkValidationCode", handler.CheckValidationCode())
 }
 
 func (handler *AuthHandler) CreateSessionId() http.HandlerFunc {
@@ -56,10 +54,6 @@ func (handler *AuthHandler) CreateSessionId() http.HandlerFunc {
 
 func (handler *AuthHandler) CheckValidationCode() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		phone, ok := r.Context().Value(middleware.ContextPhoneKey).(string) // вытаскиваем из контекста значение по ключу
-		if ok {
-			fmt.Println(phone)
-		}
 		body, err := req.HandleBody[ValidationCodeRequest](&w, r)
 		if err != nil {
 			return
