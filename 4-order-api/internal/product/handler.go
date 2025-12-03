@@ -2,10 +2,10 @@ package product
 
 import (
 	"dz4/configs"
+	"dz4/internal/models"
 	"dz4/pkg/middleware"
 	"dz4/pkg/req"
 	"dz4/pkg/res"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -33,9 +33,10 @@ func NewProductHandler(router *http.ServeMux, deps ProductHandlerDeps) {
 
 func (handler *ProductHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		email, ok := r.Context().Value(middleware.ContextPhoneKey).(string) 
-		if ok {
-			fmt.Println(email)
+		_, ok := r.Context().Value(middleware.ContextSessionKey).(string)
+		if !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
 		}
 
 		body, err := req.HandleBody[ProductCreateRequest](&w, r)
@@ -43,7 +44,7 @@ func (handler *ProductHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		product := NewProduct(body.Name, body.Description, body.Images)
+		product := models.NewProduct(body.Name, body.Description, body.Images)
 		createdProduct, err := handler.ProductRepository.Create(product)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -55,9 +56,10 @@ func (handler *ProductHandler) Create() http.HandlerFunc {
 
 func (handler *ProductHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		email, ok := r.Context().Value(middleware.ContextPhoneKey).(string) 
-		if ok {
-			fmt.Println(email)
+		_, ok := r.Context().Value(middleware.ContextSessionKey).(string)
+		if !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
 		}
 		body, err := req.HandleBody[ProductCreateRequest](&w, r)
 		if err != nil {
@@ -70,7 +72,7 @@ func (handler *ProductHandler) Update() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		product, err := handler.ProductRepository.Update(&Product{
+		product, err := handler.ProductRepository.Update(&models.Product{
 			Model:       gorm.Model{ID: uint(id)},
 			Name:        body.Name,
 			Description: body.Description,
@@ -88,9 +90,10 @@ func (handler *ProductHandler) Update() http.HandlerFunc {
 
 func (handler *ProductHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		email, ok := r.Context().Value(middleware.ContextPhoneKey).(string) 
-		if ok {
-			fmt.Println(email)
+		_, ok := r.Context().Value(middleware.ContextSessionKey).(string)
+		if !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
 		}
 		idString := r.PathValue("id")
 		id, err := strconv.ParseUint(idString, 10, 32)
@@ -116,9 +119,10 @@ func (handler *ProductHandler) Delete() http.HandlerFunc {
 
 func (handler *ProductHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		email, ok := r.Context().Value(middleware.ContextPhoneKey).(string) 
-		if ok {
-			fmt.Println(email)
+		_, ok := r.Context().Value(middleware.ContextSessionKey).(string)
+		if !ok {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
 		}
 		idString := r.PathValue("id")
 		id, err := strconv.ParseUint(idString, 10, 32)
