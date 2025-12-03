@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dz4/internal/product"
+	"dz4/internal/models"
 	"dz4/internal/user"
 	"log"
 	"os"
@@ -27,13 +27,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := db.AutoMigrate(&product.Product{}); err != nil {
-		log.Fatalln("failed to migrate:", err)
-	} else {
-		log.Println("Migration successful")
-	}
-
-	if err := db.AutoMigrate(&user.User{}); err != nil {
+	if err := db.AutoMigrate(&models.Product{}, &user.User{}, &models.Order{}); err != nil {
 		log.Fatalln("failed to migrate:", err)
 	} else {
 		log.Println("Migration successful")

@@ -11,7 +11,7 @@ import (
 type key string
 
 const (
-	ContextPhoneKey key = "ContextEmailKey"
+	ContextSessionKey key = "ContextSessionKey"
 )
 
 func writeUnauthed(w http.ResponseWriter) {
@@ -32,7 +32,7 @@ func IsAuthed(next http.Handler, config *configs.Config) http.Handler {
 			writeUnauthed(w)
 			return
 		}
-		ctx := context.WithValue(r.Context(), ContextPhoneKey, data.SessionId)
+		ctx := context.WithValue(r.Context(), ContextSessionKey, data.SessionId)
 		req := r.WithContext(ctx)
 		next.ServeHTTP(w, req)
 	})

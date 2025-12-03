@@ -1,10 +1,15 @@
 package user
 
-import "gorm.io/gorm"
+import (
+	"dz4/internal/models"
+
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
 	PhoneNumber string `gorm:"index"`
 	SessionId   string
-	Code int
+	Code        int
+	Orders      []models.Order
 }
