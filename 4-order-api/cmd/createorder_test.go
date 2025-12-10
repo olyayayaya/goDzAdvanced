@@ -24,7 +24,7 @@ func initDb() *gorm.DB {
 		panic(err)
 	}
 
-	db, err := gorm.Open(postgres.Open(os.Getenv("DSN")), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(os.Getenv("DSN_test")), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
@@ -141,7 +141,7 @@ func TestCreateOrder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if resOrderData.UserID == userId {
+	if resOrderData.UserID != userId {
 		t.Fatalf("user error")
 	}
 
