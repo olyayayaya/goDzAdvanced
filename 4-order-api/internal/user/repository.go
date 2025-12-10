@@ -25,7 +25,7 @@ func (repo *UserRepository) Create(user *User) (*User, error) {
 
 func (repo *UserRepository) FindByPhoneNumber(phoneNumber string) (*User, error) {
 	var user User
-	result := repo.Database.DB.First(&user, "phonenumber = ?", phoneNumber)
+	result := repo.Database.DB.First(&user, "phone_number = ?", phoneNumber)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -35,7 +35,7 @@ func (repo *UserRepository) FindByPhoneNumber(phoneNumber string) (*User, error)
 
 func (repo *UserRepository) FindBySessionId(sessionId string) (*User, error) {
 	var user User
-	result := repo.Database.DB.First(&user, "sessionid = ?", sessionId)
+	result := repo.Database.DB.First(&user, "session_id = ?", sessionId)
 	if result.Error != nil {
 		return nil, result.Error
 	}

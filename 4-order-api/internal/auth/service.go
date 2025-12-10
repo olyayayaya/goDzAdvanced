@@ -32,8 +32,11 @@ func (service *AuthService) Register(phoneNumber string, sessionId string, code 
 }
 
 func (service *AuthService) FindBySessionId(sessionId string) (int, error) {
-	user, err := service.UserRepository.FindBySessionId(sessionId)
-	return user.Code, err
+    user, err := service.UserRepository.FindBySessionId(sessionId)
+    if err != nil {
+        return 0, err
+    }
+    return user.Code, nil
 }
 
 func (service *AuthService) Update(phoneNumber string, sessionId string, code int) {

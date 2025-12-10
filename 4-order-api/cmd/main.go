@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-func main() {
+func App() http.Handler {
 	conf := configs.LoadConfig()
 	db := db.NewDb(conf) //инициализируем базу данных
 	router := http.NewServeMux()
@@ -35,8 +35,8 @@ func main() {
 	})
 	order.NewOrderHandler(router, order.OrderHandlerDeps{
 		OrderRepository: orderRepository,
-		UserRepository: userRepository,
-		Config: conf,
+		UserRepository:  userRepository,
+		Config:          conf,
 	})
 
 	// Middlewares
@@ -44,10 +44,14 @@ func main() {
 		middleware.CORS,
 		middleware.Logging,
 	)
+	return stack(router)
+}
 
+func main() {
+	app := App()
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: stack(router),
+		Handler: app,
 	}
 
 	fmt.Println("server is lixtening on port 8081")
